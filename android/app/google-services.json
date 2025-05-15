@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "187236265267",
+    "project_id": "ontex-v1",
+    "storage_bucket": "ontex-v1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:187236265267:android:345148934ed9b8aa07e246",
+        "android_client_info": {
+          "package_name": "com.example.provider_test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhsrQu3KlZeczJ0lBLxe22syJXCS_5XwE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
