@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider_test/models/shipment.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import '../utils/shipment_translations.dart';
 
 class ShipmentsCard extends StatelessWidget {
   final Shipment shipment;
@@ -70,7 +71,7 @@ class ShipmentsCard extends StatelessWidget {
                             ),
                             child: Center(
                               child: Text(
-                                shipment.type!,
+                                ShipmentTranslations.translateShipmentType(shipment.type),
                                 style: Theme.of(context)
                                     .textTheme
                                     .displayMedium

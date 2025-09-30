@@ -26,136 +26,325 @@ class ParcelForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final isSmallScreen = screenSize.width < 600;
-    final padding = screenSize.width * (isSmallScreen ? 0.05 : 0.07);
-    final spacing = screenSize.width * (isSmallScreen ? 0.03 : 0.04);
+    final theme = Theme.of(context);
 
     return Form(
       key: formKey,
       child: Directionality(
         textDirection: TextDirection.rtl,
-        child: ListView(
-          padding: EdgeInsets.all(padding),
-          children: [
-            _headerCard(
-              icon: Icons.inventory_2,
-              text: "معلومات الشحنة",
-              context: context,
-            ),
-            SizedBox(height: spacing),
-            Text(
-              "نوع الشحنة",
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF222B45),
-                  ),
-            ),
-            SizedBox(height: spacing * 0.5),
-            Row(
-              children: [
-                _ChoiceChip(
-                  context: context,
-                  label: "وثيقة",
-                  selected: parcelType == "Document",
-                  onTap: () => onParcelTypeChanged("Document"),
-                  icon: 'assets/images/doc.png',
-                ),
-                SizedBox(width: spacing),
-                _ChoiceChip(
-                  context: context,
-                  label: "شحنة",
-                  selected: parcelType == "Package",
-                  onTap: () => onParcelTypeChanged("Package"),
-                  icon: 'assets/images/regular.png',
-                ),
-              ],
-            ),
-            if (parcelType == "Package") ...[
-              SizedBox(height: spacing),
-              Text(
-                "حجم الشحنة",
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF222B45),
-                    ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Compact header
+              _buildCompactHeader(
+                context: context,
+                title: "تفاصيل الشحنة",
+                icon: Icons.inventory_2_outlined,
               ),
-              SizedBox(height: spacing * 0.5),
-              Row(
+              const SizedBox(height: 24),
+
+              // Shipment type selection
+              _buildSelectionSection(
+                context: context,
+                title: "نوع الشحنة",
                 children: [
-                  _ChoiceChip(
-                    label: "صغير",
-                    selected: parcelSize == "Small",
-                    onTap: () => onParcelSizeChanged("Small"),
-                    context: context,
-                  ),
-                  SizedBox(width: spacing),
-                  _ChoiceChip(
-                    label: "متوسط",
-                    selected: parcelSize == "Medium",
-                    onTap: () => onParcelSizeChanged("Medium"),
-                    context: context,
-                  ),
-                  SizedBox(width: spacing),
-                  _ChoiceChip(
-                    label: "كبير",
-                    selected: parcelSize == "Large",
-                    onTap: () => onParcelSizeChanged("Large"),
-                    context: context,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildSelectionCard(
+                          context: context,
+                          title: "وثيقة",
+                          subtitle: "مستندات وأوراق",
+                          icon: Icons.description_outlined,
+                          color: const Color(0xFF2196F3),
+                          isSelected: parcelType == "Document",
+                          onTap: () => onParcelTypeChanged("Document"),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildSelectionCard(
+                          context: context,
+                          title: "طرد",
+                          subtitle: "بضائع ومنتجات",
+                          icon: Icons.inventory_2_outlined,
+                          color: const Color(0xFF4CAF50),
+                          isSelected: parcelType == "Normal",
+                          onTap: () => onParcelTypeChanged("Normal"),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              SizedBox(height: spacing),
-              _roundedInput(
-                "الوزن (كجم)",
-                context,
-                initialValue: weight,
-                onChanged: onWeightChanged,
-                icon: Icons.monitor_weight_outlined,
-              ),
-              SizedBox(height: spacing),
-              Text(
-                "طبيعة الشحنة",
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF222B45),
+
+              // Additional details for Normal parcels
+              if (parcelType == "Normal") ...[
+                // Size selection
+                _buildSelectionSection(
+                  context: context,
+                  title: "حجم الشحنة",
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildSizeCard(
+                            context: context,
+                            title: "صغير",
+                            subtitle: "حتى 30 سم",
+                            icon: Icons.crop_din_outlined,
+                            color: const Color(0xFF4CAF50),
+                            isSelected: parcelSize == "Small",
+                            onTap: () => onParcelSizeChanged("Small"),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildSizeCard(
+                            context: context,
+                            title: "متوسط",
+                            subtitle: "30-60 سم",
+                            icon: Icons.crop_landscape_outlined,
+                            color: const Color(0xFFFF9800),
+                            isSelected: parcelSize == "Medium",
+                            onTap: () => onParcelSizeChanged("Medium"),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildSizeCard(
+                            context: context,
+                            title: "كبير",
+                            subtitle: "أكثر من 60 سم",
+                            icon: Icons.crop_free_outlined,
+                            color: const Color(0xFFF44336),
+                            isSelected: parcelSize == "Large",
+                            onTap: () => onParcelSizeChanged("Large"),
+                          ),
+                        ),
+                      ],
                     ),
-              ),
-              SizedBox(height: spacing * 0.5),
-              Row(
+                  ],
+                ),
+
+                // Weight input
+                _buildFormSection(
+                  context: context,
+                  title: "الوزن",
+                  children: [
+                    _buildCleanInput(
+                      context: context,
+                      label: "الوزن بالكيلوجرام",
+                      initialValue: weight,
+                      onChanged: onWeightChanged,
+                      icon: Icons.monitor_weight_outlined,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ],
+                ),
+
+                // Nature selection
+                _buildSelectionSection(
+                  context: context,
+                  title: "طبيعة الشحنة",
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildNatureCard(
+                            context: context,
+                            title: "قابل للكسر",
+                            subtitle: "يحتاج عناية خاصة",
+                            icon: Icons.warning_outlined,
+                            color: const Color(0xFFF44336),
+                            isSelected: parcelNature == "Fragile",
+                            onTap: () => onParcelNatureChanged("Fragile"),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildNatureCard(
+                            context: context,
+                            title: "عادي",
+                            subtitle: "بضائع عادية",
+                            icon: Icons.check_circle_outline,
+                            color: const Color(0xFF4CAF50),
+                            isSelected: parcelNature == "Normal",
+                            onTap: () => onParcelNatureChanged("Normal"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+
+              // Notes section
+              _buildFormSection(
+                context: context,
+                title: "ملاحظات إضافية (اختياري)",
                 children: [
-                  _ChoiceChip(
-                    label: "قابل للكسر",
-                    selected: parcelNature == "Fragile",
-                    onTap: () => onParcelNatureChanged("Fragile"),
-                    icon: 'assets/images/fragile.png',
-                    iconColor: Colors.redAccent,
+                  _buildCleanInput(
                     context: context,
-                  ),
-                  SizedBox(width: spacing),
-                  _ChoiceChip(
-                    label: "عادي",
-                    selected: parcelNature == "Regular",
-                    onTap: () => onParcelNatureChanged("Regular"),
-                    icon: 'assets/images/regular.png',
-                    iconColor: Colors.green,
-                    context: context,
+                    label: "أي ملاحظات خاصة بالشحنة",
+                    icon: Icons.edit_note_outlined,
+                    maxLines: 3,
                   ),
                 ],
               ),
             ],
-            SizedBox(height: spacing),
-            Text(
-              "الملاحظات",
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF222B45),
-                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactHeader({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+  }) {
+    final theme = Theme.of(context);
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFAF3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFF9B652E).withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: const Color(0xFF9B652E),
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF9B652E),
             ),
-            SizedBox(height: spacing),
-            _roundedInput(
-              "الملاحظات",
-              context,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormSection({
+    required BuildContext context,
+    required String title,
+    required List<Widget> children,
+  }) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Text(
+            title,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF222831),
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+        ...children,
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildSelectionSection({
+    required BuildContext context,
+    required String title,
+    required List<Widget> children,
+  }) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Text(
+            title,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF222831),
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+        ...children,
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildSelectionCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withOpacity(0.1) : const Color(0xFFFFFAF3),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? color : const Color(0xFF9B652E).withOpacity(0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isSelected ? color.withOpacity(0.2) : const Color(0xFF9B652E).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? color : const Color(0xFF8B572A),
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: isSelected ? color : const Color(0xFF1A1A1A),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 12,
+                color: isSelected ? color.withOpacity(0.8) : const Color(0xFF8B572A),
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -163,134 +352,167 @@ class ParcelForm extends StatelessWidget {
     );
   }
 
-  Widget _headerCard(
-      {required IconData icon,
-      required String text,
-      required BuildContext context}) {
-    final screenSize = MediaQuery.of(context).size;
-    final isSmallScreen = screenSize.width < 600;
-    final padding = screenSize.width * (isSmallScreen ? 0.05 : 0.07);
-    final spacing = screenSize.width * (isSmallScreen ? 0.03 : 0.04);
-    return Container(
-      padding: EdgeInsets.all(padding),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-              color: Color(0x334F8FFF), blurRadius: 16, offset: Offset(0, 4)),
-        ],
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.white, size: 40),
-          SizedBox(height: spacing),
-          Text(
-            text,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.white,
-                ),
-            textAlign: TextAlign.center,
+  Widget _buildSizeCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withOpacity(0.1) : const Color(0xFFFFFAF3),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? color : const Color(0xFF9B652E).withOpacity(0.3),
+            width: isSelected ? 2 : 1,
           ),
-        ],
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? color : const Color(0xFF8B572A),
+              size: 20,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: isSelected ? color : const Color(0xFF1A1A1A),
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected ? color.withOpacity(0.8) : const Color(0xFF8B572A),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _roundedInput(
-    String label,
-    BuildContext context, {
+  Widget _buildNatureCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withOpacity(0.1) : const Color(0xFFFFFAF3),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? color : const Color(0xFF9B652E).withOpacity(0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? color : const Color(0xFF8B572A),
+              size: 24,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: isSelected ? color : const Color(0xFF1A1A1A),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 11,
+                color: isSelected ? color.withOpacity(0.8) : const Color(0xFF8B572A),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCleanInput({
+    required String label,
     String? initialValue,
     ValueChanged<String>? onChanged,
     IconData? icon,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+    required BuildContext context,
   }) {
-    final screenSize = MediaQuery.of(context).size;
-    final isSmallScreen = screenSize.width < 600;
-    final padding = screenSize.width * (isSmallScreen ? 0.05 : 0.07);
+    final theme = Theme.of(context);
 
     return TextFormField(
       initialValue: initialValue,
       onChanged: onChanged,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      style: const TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w500,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Color(0xFF8F9BB3),
-              fontWeight: FontWeight.w500,
-            ),
+        labelStyle: TextStyle(
+          fontSize: 14,
+          color: const Color(0xFF8B572A),
+          fontWeight: FontWeight.w500,
+        ),
+        prefixIcon: icon != null ? Icon(
+          icon,
+          size: 20,
+          color: const Color(0xFF8B572A),
+        ) : null,
         filled: true,
-        fillColor: Colors.white,
-        prefixIcon: icon != null
-            ? Icon(icon, color: Theme.of(context).primaryColor)
-            : null,
-        contentPadding:
-            EdgeInsets.symmetric(vertical: padding, horizontal: padding),
+        fillColor: const Color(0xFFFFFAF3),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Color(0xFFE4E9F2)),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Color(0xFFE4E9F2)),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: const Color(0xFF9B652E).withOpacity(0.2),
+            width: 1,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor),
-        ),
-      ),
-    );
-  }
-
-  Widget _ChoiceChip({
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-    String? icon,
-    Color? iconColor,
-    required BuildContext context,
-  }) {
-    final screenSize = MediaQuery.of(context).size;
-    final isSmallScreen = screenSize.width < 600;
-    final padding = screenSize.width * (isSmallScreen ? 0.05 : 0.07);
-    final spacing = screenSize.width * (isSmallScreen ? 0.03 : 0.04);
-    final iconSize = screenSize.width * (isSmallScreen ? 0.03 : 0.04);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding:
-            EdgeInsets.symmetric(horizontal: padding, vertical: padding * 0.5),
-        decoration: BoxDecoration(
-          color: selected ? Theme.of(context).primaryColor : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color:
-                selected ? Theme.of(context).primaryColor : Color(0xFFE4E9F2),
+          borderSide: BorderSide(
+            color: const Color(0xFF9B652E),
+            width: 2,
           ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                      color: Color(0x334F8FFF),
-                      blurRadius: 8,
-                      offset: Offset(0, 2))
-                ]
-              : [],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null)
-              Image.asset(
-                icon,
-                width: iconSize * 1.5,
-                height: iconSize * 1.5,
-              ),
-            if (icon != null) SizedBox(width: spacing),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: selected ? Colors.white : Color(0xFF222B45),
-                  ),
-            ),
-          ],
         ),
       ),
     );

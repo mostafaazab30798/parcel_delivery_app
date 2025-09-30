@@ -1,0 +1,119 @@
+{
+  "info": {
+    "_postman_id": "9e3b5f21-b49f-4c94-95ce-unittest",
+    "name": "Shipping Workflow Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+
+    {
+      "name": "1️⃣ Create Shipment (National Address)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sender\": {\n    \"name\": \"Ali Sender\",\n    \"phone\": \"0551234567\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"123\",\n        \"street\": \"King Road\",\n        \"district\": \"Olaya\",\n        \"city\": \"Riyadh\",\n        \"region\": \"Riyadh\",\n        \"postalCode\": \"12345\"\n      }\n    }\n  },\n  \"recipient\": {\n    \"name\": \"Mohammed Receiver\",\n    \"phone\": \"0569876543\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"321\",\n        \"street\": \"Prince Street\",\n        \"district\": \"Sulaimaniyah\",\n        \"city\": \"Jeddah\",\n        \"region\": \"Makkah\",\n        \"postalCode\": \"54321\"\n      }\n    }\n  },\n  \"shipmentType\": \"Normal\",\n  \"weight\": 5\n}"
+        },
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/shipments",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "shipments"]
+        }
+      }
+    },
+
+    {
+      "name": "2️⃣ Create Shipment (ShortCode Address)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sender\": {\n    \"name\": \"Short Sender\",\n    \"phone\": \"0502223344\",\n    \"address\": {\n      \"shortCode\": \"KSA-XYZ123\"\n    }\n  },\n  \"recipient\": {\n    \"name\": \"Short Receiver\",\n    \"phone\": \"0599988776\",\n    \"address\": {\n      \"shortCode\": \"KSA-ABC987\"\n    }\n  },\n  \"shipmentType\": \"Document\"\n}"
+        },
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/shipments",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "shipments"]
+        }
+      }
+    },
+
+    {
+      "name": "3️⃣ Create Driver - Abdullah",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Abdullah\",\n  \"phone\": \"0551112233\",\n  \"licenseNumber\": \"LIC-1234\",\n  \"region\": \"Riyadh\",\n  \"Area\": \"East Riyadh\"\n}"
+        },
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/drivers",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "drivers"]
+        }
+      }
+    },
+
+    {
+      "name": "4️⃣ Create Driver - Sara",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Sara\",\n  \"phone\": \"0563334455\",\n  \"licenseNumber\": \"LIC-5678\",\n  \"region\": \"Jeddah\",\n  \"Area\": \"North Jeddah\"\n}"
+        },
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/drivers",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "drivers"]
+        }
+      }
+    },
+
+    {
+      "name": "5️⃣ Get Unassigned Shipments",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/shipments/unassigned",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "shipments", "unassigned"]
+        }
+      }
+    },
+
+    {
+      "name": "6️⃣ Assign Driver to Shipment (EXAMPLE)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"driverId\": \"REPLACE_WITH_DRIVER_ID\"\n}"
+        },
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/shipments/REPLACE_TRACKING_NUMBER/assign-driver",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "shipments", "REPLACE_TRACKING_NUMBER", "assign-driver"]
+        }
+      }
+    }
+
+  ]
+}

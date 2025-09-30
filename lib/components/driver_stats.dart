@@ -1,92 +1,93 @@
 import 'package:flutter/material.dart';
-import 'package:provider_test/data/driver_data.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider_test/blocs/auth/bloc.dart';
-import 'package:provider_test/blocs/auth/state.dart';
 import 'dart:io';
 
 class DriverStates extends StatelessWidget {
-  const DriverStates({super.key});
+  final Map<String, dynamic> driverData;
+  final Map<String, dynamic> earnings;
+  
+  const DriverStates({
+    super.key,
+    required this.driverData,
+    required this.earnings,
+  });
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 600;
-    final num driverRating = drivers[0].totalStars! / drivers[0].totalReviews!;
+    
+    // Use real data from earnings for rating
+    final double averageRating = (earnings['averageRating'] as num?)?.toDouble() ?? 0.0;
+    final int totalReviews = earnings['completedShipments'] as int? ?? 0;
 
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        final userData = state is UserDataLoaded ? state.userData : null;
+    final padding = screenSize.width * (isSmallScreen ? 0.02 : 0.03);
+    final fontSize = screenSize.width * (isSmallScreen ? 0.03 : 0.045);
+    final titleFontSize = screenSize.width * (isSmallScreen ? 0.04 : 0.06);
+    final iconSize = screenSize.width * (isSmallScreen ? 0.04 : 0.045);
+    final spacing = screenSize.width * (isSmallScreen ? 0.01 : 0.015);
+    final borderRadius = screenSize.width * (isSmallScreen ? 0.03 : 0.04);
+    final imageSize = screenSize.width * (isSmallScreen ? 0.2 : 0.25);
 
-        final padding = screenSize.width * (isSmallScreen ? 0.02 : 0.03);
-        final fontSize = screenSize.width * (isSmallScreen ? 0.03 : 0.045);
-        final titleFontSize = screenSize.width * (isSmallScreen ? 0.04 : 0.06);
-        final iconSize = screenSize.width * (isSmallScreen ? 0.04 : 0.045);
-        final spacing = screenSize.width * (isSmallScreen ? 0.01 : 0.015);
-        final borderRadius = screenSize.width * (isSmallScreen ? 0.03 : 0.04);
-        final imageSize = screenSize.width * (isSmallScreen ? 0.2 : 0.25);
-
-        return Padding(
-          padding: EdgeInsets.only(
-            top: padding * 1.5,
-            right: padding * 1.5,
-            left: padding * 1.5,
-            bottom: padding * 0.5,
-          ),
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: padding * 1.5,
-              vertical: padding * 1.5,
+    return Padding(
+      padding: EdgeInsets.only(
+        top: padding * 1.5,
+        right: padding * 1.5,
+        left: padding * 1.5,
+        bottom: padding * 0.5,
+      ),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: padding * 1.5,
+          vertical: padding * 1.5,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(borderRadius * 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(borderRadius * 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            width: screenSize.width,
-            child: Column(
+          ],
+        ),
+        width: screenSize.width,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildDriverImage(
-                      context,
-                      userData,
-                      imageSize,
-                      borderRadius,
-                    ),
-                    _buildDriverInfo(
-                      context,
-                      driverRating,
-                      padding,
-                      fontSize,
-                      titleFontSize,
-                      iconSize,
-                      spacing,
-                      borderRadius,
-                    ),
-                  ],
+                _buildDriverImage(
+                  context,
+                  driverData,
+                  imageSize,
+                  borderRadius,
                 ),
-                // const SizedBox(height: 20),
-                // _buildDeliveryStats(context),
+                _buildDriverInfo(
+                  context,
+                  averageRating,
+                  totalReviews,
+                  padding,
+                  fontSize,
+                  titleFontSize,
+                  iconSize,
+                  spacing,
+                  borderRadius,
+                ),
               ],
             ),
-          ),
-        );
-      },
+            // const SizedBox(height: 20),
+            // _buildDeliveryStats(context),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildDriverImage(
     BuildContext context,
-    Map<String, dynamic>? userData,
+    Map<String, dynamic> driverData,
     double imageSize,
     double borderRadius,
   ) {
@@ -102,9 +103,9 @@ class DriverStates extends StatelessWidget {
               color: Colors.blue.withOpacity(0.2),
               width: 2,
             ),
-            image: userData?['profilePicture'] != null
+            image: driverData['profilePicture'] != null
                 ? DecorationImage(
-                    image: FileImage(File(userData!['profilePicture'])),
+                    image: FileImage(File(driverData['profilePicture'])),
                     fit: BoxFit.cover,
                   )
                 : const DecorationImage(
@@ -119,7 +120,8 @@ class DriverStates extends StatelessWidget {
 
   Widget _buildDriverInfo(
     BuildContext context,
-    num driverRating,
+    double averageRating,
+    int totalReviews,
     double padding,
     double fontSize,
     double titleFontSize,
@@ -127,6 +129,9 @@ class DriverStates extends StatelessWidget {
     double spacing,
     double borderRadius,
   ) {
+    final driverName = driverData['name'] ?? 'Driver';
+    final driverId = driverData['id'] ?? driverData['_id'] ?? 'N/A';
+    
     return Expanded(
       child: Padding(
         padding: EdgeInsets.only(right: padding),
@@ -134,7 +139,7 @@ class DriverStates extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              'مرحبًا , ${drivers[0].name}',
+              'مرحبًا , $driverName',
               style: TextStyle(
                 fontSize: titleFontSize,
                 fontWeight: FontWeight.bold,
@@ -152,7 +157,7 @@ class DriverStates extends StatelessWidget {
                 borderRadius: BorderRadius.circular(borderRadius),
               ),
               child: Text(
-                'الرقم التعريفي ${drivers[0].id}',
+                'الرقم التعريفي ${driverId.toString().substring(0, 8)}...',
                 style: TextStyle(
                   color: Colors.deepPurple[700],
                   fontWeight: FontWeight.w500,
@@ -165,7 +170,7 @@ class DriverStates extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  '(${drivers[0].totalReviews} مراجعات)',
+                  '($totalReviews شحنات مكتملة)',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: fontSize * 0.8,
@@ -173,7 +178,7 @@ class DriverStates extends StatelessWidget {
                 ),
                 SizedBox(width: spacing),
                 Text(
-                  driverRating.toStringAsFixed(1),
+                  averageRating.toStringAsFixed(1),
                   style: TextStyle(
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
@@ -183,7 +188,7 @@ class DriverStates extends StatelessWidget {
                 Row(
                   children: List.generate(5, (index) {
                     return Icon(
-                      index < driverRating.round()
+                      index < averageRating.round()
                           ? Icons.star
                           : Icons.star_border,
                       color: Colors.amber,

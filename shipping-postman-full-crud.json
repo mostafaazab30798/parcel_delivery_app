@@ -1,0 +1,179 @@
+{
+  "info": {
+    "_postman_id": "9e3b5f21-b49f-4c94-95ce-unittest",
+    "name": "Shipping Workflow Demo - Full CRUD",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "7\ufe0f\u20e3 Get All Shipments",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/shipments",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "shipments"
+          ]
+        }
+      }
+    },
+    {
+      "name": "8\ufe0f\u20e3 Get Shipment by Tracking Number",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/shipments/TRACKING_NUMBER_HERE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "shipments",
+            "TRACKING_NUMBER_HERE"
+          ]
+        }
+      }
+    },
+    {
+      "name": "9\ufe0f\u20e3 Update Shipment by Tracking Number",
+      "request": {
+        "method": "PUT",
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/shipments/TRACKING_NUMBER_HERE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "shipments",
+            "TRACKING_NUMBER_HERE"
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shipmentType\": \"Normal\",\n  \"weight\": 10\n}"
+        }
+      }
+    },
+    {
+      "name": "\ud83d\udd1f Delete Shipment by Tracking Number",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/shipments/TRACKING_NUMBER_HERE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "shipments",
+            "TRACKING_NUMBER_HERE"
+          ]
+        }
+      }
+    },
+    {
+      "name": "1\ufe0f\u20e31\ufe0f\u20e3 Get All Drivers",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/drivers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "drivers"
+          ]
+        }
+      }
+    },
+    {
+      "name": "1\ufe0f\u20e32\ufe0f\u20e3 Get Driver by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/drivers/DRIVER_ID_HERE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "drivers",
+            "DRIVER_ID_HERE"
+          ]
+        }
+      }
+    },
+    {
+      "name": "1\ufe0f\u20e33\ufe0f\u20e3 Update Driver by ID",
+      "request": {
+        "method": "PUT",
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/drivers/DRIVER_ID_HERE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "drivers",
+            "DRIVER_ID_HERE"
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Name\",\n  \"phone\": \"0599999999\",\n  \"licenseNumber\": \"LIC-9999\",\n  \"region\": \"Updated Region\",\n  \"Area\": \"Updated Area\"\n}"
+        }
+      }
+    },
+    {
+      "name": "1\ufe0f\u20e34\ufe0f\u20e3 Delete Driver by ID",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "https://shipping.onetex.com.sa/api/drivers/DRIVER_ID_HERE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "drivers",
+            "DRIVER_ID_HERE"
+          ]
+        }
+      }
+    }
+  ]
+}

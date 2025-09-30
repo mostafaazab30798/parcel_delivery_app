@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Bash(flutter run:*)",
+      "Bash(flutter analyze:*)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "Read(C:\\Users\\mosta\\Downloads/**)",
+      "WebSearch",
+      "Read(//c/Users/mosta/Downloads/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

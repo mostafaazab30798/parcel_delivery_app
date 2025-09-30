@@ -1,0 +1,713 @@
+{
+  "info": {
+    "name": "Shipping App - Complete Backend API",
+    "description": "Complete collection for Shipping App Backend with cost calculation functionality",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "shipping-app-complete"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "{{baseUrl}}"
+    },
+    {
+      "key": "authToken",
+      "value": "{{authToken}}"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{testPhone}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"user\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Save OTP and phone from register response",
+                  "if (responseCode.code === 201) {",
+                  "    var jsonData = JSON.parse(responseBody);",
+                  "    console.log('Registration response:', jsonData);",
+                  "    ",
+                  "    // Save OTP if it exists in response",
+                  "    if (jsonData.otp) {",
+                  "        pm.environment.set('generatedOtp', jsonData.otp);",
+                  "        console.log('OTP saved:', jsonData.otp);",
+                  "    }",
+                  "    ",
+                  "    // Save phone number from request for verify step",
+                  "    var requestData = JSON.parse(pm.request.body.raw);",
+                  "    pm.environment.set('registeredPhone', requestData.phone);",
+                  "    console.log('Phone saved:', requestData.phone);",
+                  "    ",
+                  "    // Save user data if returned",
+                  "    if (jsonData.user && jsonData.user._id) {",
+                  "        pm.environment.set('userId', jsonData.user._id);",
+                  "        console.log('User ID saved:', jsonData.user._id);",
+                  "    }",
+                  "}",
+                  "",
+                  "// Test that registration was successful",
+                  "pm.test('Registration successful', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response contains OTP', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('otp');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{registeredPhone}}\",\n  \"otp\": \"{{generatedOtp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "verify-otp"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Save JWT token from verify OTP response",
+                  "if (responseCode.code === 200) {",
+                  "    var jsonData = JSON.parse(responseBody);",
+                  "    console.log('OTP verification response:', jsonData);",
+                  "    ",
+                  "    if (jsonData.token) {",
+                  "        pm.environment.set('authToken', jsonData.token);",
+                  "        console.log('Auth token saved from OTP verification:', jsonData.token);",
+                  "    }",
+                  "    ",
+                  "    // Save user data",
+                  "    if (jsonData.user && jsonData.user._id) {",
+                  "        pm.environment.set('userId', jsonData.user._id);",
+                  "        console.log('User ID saved:', jsonData.user._id);",
+                  "    }",
+                  "}",
+                  "",
+                  "// Test that OTP verification was successful",
+                  "pm.test('OTP verification successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response contains JWT token', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{registeredPhone}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Save token from login response",
+                  "if (responseCode.code === 200) {",
+                  "    var jsonData = JSON.parse(responseBody);",
+                  "    if (jsonData.token) {",
+                  "        pm.environment.set('authToken', jsonData.token);",
+                  "        console.log('Auth token saved:', jsonData.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users Management",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Driver (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"محمد أحمد\",\n  \"phone\": \"0598765432\",\n  \"licenseNumber\": \"DL123456\",\n  \"region\": \"الرياض\",\n  \"role\": \"driver\",\n  \"password\": \"driver123\",\n  \"Area\": \"شمال الرياض\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Drivers Management",
+      "item": [
+        {
+          "name": "Get All Drivers (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Driver by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/{{driverId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers", "{{driverId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Driver (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"محمد أحمد السعيد\",\n  \"region\": \"جدة\",\n  \"Area\": \"شمال جدة\",\n  \"isAvailable\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/{{driverId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers", "{{driverId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Driver (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/{{driverId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers", "{{driverId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shipments Management",
+      "item": [
+        {
+          "name": "Create Shipment (User) - Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sender\": {\n    \"name\": \"أحمد محمد\",\n    \"phone\": \"0512345678\",\n    \"email\": \"ahmed@example.com\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"1234\",\n        \"street\": \"شارع الملك فهد\",\n        \"district\": \"العليا\",\n        \"city\": \"الرياض\",\n        \"region\": \"الرياض\",\n        \"postalCode\": \"12345\",\n        \"additionalNumber\": \"5678\",\n        \"unit\": \"شقة 101\"\n      }\n    }\n  },\n  \"recipient\": {\n    \"name\": \"فاطمة علي\",\n    \"phone\": \"0598765432\",\n    \"email\": \"fatima@example.com\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"5678\",\n        \"street\": \"شارع التحلية\",\n        \"district\": \"الحمراء\",\n        \"city\": \"جدة\",\n        \"region\": \"مكة المكرمة\",\n        \"postalCode\": \"23456\",\n        \"additionalNumber\": \"9012\",\n        \"unit\": \"مكتب 201\"\n      }\n    }\n  },\n  \"shipmentType\": \"Document\",\n  \"nature\": \"Normal\",\n  \"notes\": \"مستندات مهمة - يرجى التعامل بحذر\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Save tracking number from response",
+                  "if (responseCode.code === 201) {",
+                  "    var jsonData = JSON.parse(responseBody);",
+                  "    if (jsonData.data && jsonData.data.trackingNumber) {",
+                  "        pm.environment.set('trackingNumber', jsonData.data.trackingNumber);",
+                  "        console.log('Tracking number saved:', jsonData.data.trackingNumber);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Create Shipment (User) - Normal Package",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sender\": {\n    \"name\": \"سارة أحمد\",\n    \"phone\": \"0511234567\",\n    \"email\": \"sara@example.com\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"2468\",\n        \"street\": \"شارع الأمير محمد بن عبد العزيز\",\n        \"district\": \"الملقا\",\n        \"city\": \"الرياض\",\n        \"region\": \"الرياض\",\n        \"postalCode\": \"13524\",\n        \"additionalNumber\": \"1357\",\n        \"unit\": \"فيلا 15\"\n      }\n    }\n  },\n  \"recipient\": {\n    \"name\": \"خالد محمد\",\n    \"phone\": \"0567891234\",\n    \"email\": \"khaled@example.com\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"9876\",\n        \"street\": \"شارع الأمير سلطان\",\n        \"district\": \"الشاطئ\",\n        \"city\": \"الدمام\",\n        \"region\": \"المنطقة الشرقية\",\n        \"postalCode\": \"34567\",\n        \"additionalNumber\": \"2468\",\n        \"unit\": \"شقة 304\"\n      }\n    }\n  },\n  \"shipmentType\": \"Normal\",\n  \"weight\": 5.5,\n  \"nature\": \"Fragile\",\n  \"notes\": \"هدايا - يرجى التعامل بحذر\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Shipment - Same as Sender",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sender\": {\n    \"name\": \"عبد الله سعد\",\n    \"phone\": \"0555555555\",\n    \"email\": \"abdullah@example.com\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"1111\",\n        \"street\": \"شارع التخصصي\",\n        \"district\": \"النخيل\",\n        \"city\": \"الرياض\",\n        \"region\": \"الرياض\",\n        \"postalCode\": \"11564\",\n        \"additionalNumber\": \"2222\",\n        \"unit\": \"مكتب 501\"\n      }\n    }\n  },\n  \"shipmentType\": \"Normal\",\n  \"weight\": 1.2,\n  \"nature\": \"Normal\",\n  \"notes\": \"إرسال للنفس - عنوان آخر\",\n  \"sameAsSender\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Shipments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shipment by Tracking Number",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments/{{trackingNumber}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments", "{{trackingNumber}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unassigned Shipments (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments/unassigned",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments", "unassigned"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Shipment (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Transit\",\n  \"weight\": 3.2,\n  \"notes\": \"تم تحديث الوزن والحالة\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments/{{trackingNumber}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments", "{{trackingNumber}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Driver to Shipment (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driverId\": \"{{driverId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments/{{trackingNumber}}/assign-driver",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments", "{{trackingNumber}}", "assign-driver"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unassign Driver from Shipment (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driverId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments/{{trackingNumber}}/assign-driver",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments", "{{trackingNumber}}", "assign-driver"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Shipment (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments/{{trackingNumber}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments", "{{trackingNumber}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cost Calculation Examples",
+      "item": [
+        {
+          "name": "Local Delivery - Riyadh to Riyadh (Small)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sender\": {\n    \"name\": \"محمد أحمد\",\n    \"phone\": \"0512345678\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"1234\",\n        \"street\": \"شارع الملك فهد\",\n        \"district\": \"العليا\",\n        \"city\": \"الرياض\",\n        \"region\": \"الرياض\",\n        \"postalCode\": \"12345\"\n      }\n    }\n  },\n  \"recipient\": {\n    \"name\": \"سارة علي\",\n    \"phone\": \"0598765432\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"5678\",\n        \"street\": \"شارع العروبة\",\n        \"district\": \"الملز\",\n        \"city\": \"الرياض\",\n        \"region\": \"الرياض\",\n        \"postalCode\": \"11564\"\n      }\n    }\n  },\n  \"shipmentType\": \"Document\",\n  \"nature\": \"Normal\",\n  \"notes\": \"توصيل محلي - الرياض (15 ريال)\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Inter-city - Riyadh to Jeddah (Medium)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sender\": {\n    \"name\": \"عبد الله سعد\",\n    \"phone\": \"0511111111\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"9999\",\n        \"street\": \"شارع التخصصي\",\n        \"district\": \"النخيل\",\n        \"city\": \"الرياض\",\n        \"region\": \"الرياض\",\n        \"postalCode\": \"11564\"\n      }\n    }\n  },\n  \"recipient\": {\n    \"name\": \"فهد محمد\",\n    \"phone\": \"0522222222\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"7777\",\n        \"street\": \"شارع التحلية\",\n        \"district\": \"الحمراء\",\n        \"city\": \"جدة\",\n        \"region\": \"مكة المكرمة\",\n        \"postalCode\": \"23456\"\n      }\n    }\n  },\n  \"shipmentType\": \"Normal\",\n  \"weight\": 5,\n  \"nature\": \"Normal\",\n  \"notes\": \"شحن بين المدن - الرياض إلى جدة (65 ريال)\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Large Package - Riyadh to Dammam",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sender\": {\n    \"name\": \"نورا أحمد\",\n    \"phone\": \"0533333333\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"3333\",\n        \"street\": \"شارع الأمير محمد بن عبد العزيز\",\n        \"district\": \"الملقا\",\n        \"city\": \"الرياض\",\n        \"region\": \"الرياض\",\n        \"postalCode\": \"13524\"\n      }\n    }\n  },\n  \"recipient\": {\n    \"name\": \"خالد عبد الله\",\n    \"phone\": \"0544444444\",\n    \"address\": {\n      \"national\": {\n        \"buildingNumber\": \"4444\",\n        \"street\": \"شارع الأمير سلطان\",\n        \"district\": \"الشاطئ\",\n        \"city\": \"الدمام\",\n        \"region\": \"المنطقة الشرقية\",\n        \"postalCode\": \"34567\"\n      }\n    }\n  },\n  \"shipmentType\": \"Normal\",\n  \"weight\": 25,\n  \"nature\": \"Fragile\",\n  \"notes\": \"طرد كبير - الرياض إلى الدمام (58 ريال)\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

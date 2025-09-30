@@ -65,6 +65,54 @@ class SwitchScreen extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () => context.go('/api-test'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.withOpacity(0.8),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: padding * 5,
+                  vertical: padding * 2.5,
+                ),
+              ),
+              child: Text(
+                'API Test',
+                style: GoogleFonts.almarai(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize * 1.1,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () => context.go('/test-integration'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange.withOpacity(0.8),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: padding * 5,
+                  vertical: padding * 2.5,
+                ),
+              ),
+              child: Text(
+                'Test Integration',
+                style: GoogleFonts.almarai(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize * 1.1,
+                ),
+              ),
+            ),
           ],
         ),
       ),
