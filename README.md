@@ -1,4 +1,4 @@
-# Provider Test App
+# Parcel Delivery App
 
 A Flutter application demonstrating state management using the Provider package. This project includes multi-platform support (Android, iOS, Web, macOS, Windows, Linux).
 
@@ -22,5 +22,5 @@ A Flutter application demonstrating state management using the Provider package.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/provider_test.git
+   git clone https://github.com/mostafaazab30798/provider_test.git
    cd provider_test
