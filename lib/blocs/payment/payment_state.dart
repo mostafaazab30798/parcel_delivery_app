@@ -84,3 +84,4 @@ class PaymentFailure extends PaymentState {
   List<Object?> get props => [message, failedPaymentMethod];
 }
 
+
